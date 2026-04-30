@@ -172,7 +172,7 @@ export default function BookingPage() {
                   <div className="relative">
                     <input 
                       type="date" 
-                      className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl pl-4 pr-10 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
+                      className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl pl-4 pr-10 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-12 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                       // Firefox fix for icon
                       style={{ colorScheme: 'light dark' }}
                       required
