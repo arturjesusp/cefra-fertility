@@ -4,8 +4,30 @@ import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 
-// Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Initialize Gemini API safely
+let _ai: GoogleGenAI | null = null;
+const getAIClient = () => {
+  if (!_ai) {
+    let apiKey = '';
+    try {
+      if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
+        apiKey = process.env.GEMINI_API_KEY;
+      }
+    } catch (e) {}
+    if (!apiKey) {
+      try {
+        // @ts-ignore
+        apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+      } catch (e) {}
+    }
+    
+    // We only initialize if we have an apiKey to prevent crashes
+    if (apiKey) {
+      _ai = new GoogleGenAI({ apiKey });
+    }
+  }
+  return _ai;
+};
 
 interface Message {
   role: 'user' | 'model';
@@ -41,12 +63,19 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
+      const aiClient = getAIClient();
+      if (!aiClient) {
+         setMessages(prev => [...prev, { role: 'model', text: 'Lo siento, el servicio de chatbot no está configurado (falta la clave de API).' }]);
+         setIsLoading(false);
+         return;
+      }
+
       const contents = newMessages.map(msg => ({
         role: msg.role,
         parts: [{ text: msg.text }]
       }));
 
-      const response = await ai.models.generateContent({
+      const response = await aiClient.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents,
         config: {
