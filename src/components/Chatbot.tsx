@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
+import { Link } from 'react-router-dom';
 
 // Initialize Gemini API
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -49,7 +50,7 @@ export default function Chatbot() {
         model: 'gemini-3-flash-preview',
         contents,
         config: {
-          systemInstruction: 'Eres un asistente virtual inteligente, amable y compasivo de CEFRA (Centro de Fertilidad y Reproducción Asistida). Tu tarea es ayudar a los usuarios con información general sobre la clínica, servicios (FIV, Inseminación Artificial, etc.) y guiarles a la página de agendar cita si quieren reservar. Responde de manera breve y cálida, en español.'
+          systemInstruction: 'Eres un asistente virtual inteligente, amable y compasivo de CEFRA (Centro de Fertilidad y Reproducción Asistida). Tu tarea es ayudar a los usuarios con información general sobre la clínica, servicios (FIV, Inseminación Artificial, etc.) y guiarles a la página de agendar cita si quieren reservar. Cuando ofrezcas o menciones agendar una cita, DEBES proporcionar siempre este enlace en formato Markdown: [Agendar Cita](/agendar). Responde de manera breve y cálida, en español.'
         }
       });
 
@@ -128,7 +129,26 @@ export default function Chatbot() {
               >
                 {msg.role === 'model' ? (
                   <div className="markdown-body text-sm font-light">
-                    <Markdown>{msg.text}</Markdown>
+                    <Markdown 
+                      components={{
+                        a({ node, href, children, ...props }) {
+                          if (href && href.startsWith('/')) {
+                            return (
+                              <Link 
+                                to={href} 
+                                className="text-clinic-cta font-semibold hover:underline"
+                                onClick={() => setIsOpen(false)} // Close chat when navigating
+                              >
+                                {children}
+                              </Link>
+                            );
+                          }
+                          return <a href={href} className="text-clinic-cta font-semibold hover:underline" target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+                        }
+                      }}
+                    >
+                      {msg.text}
+                    </Markdown>
                   </div>
                 ) : (
                   msg.text
@@ -168,9 +188,6 @@ export default function Chatbot() {
             >
               <Send className="w-4 h-4" />
             </button>
-          </div>
-          <div className="mt-2 text-center">
-             <span className="text-[10px] text-clinic-muted-2 dark:text-white/40 font-mono">Generado por Gemini AI</span>
           </div>
         </div>
       </div>
