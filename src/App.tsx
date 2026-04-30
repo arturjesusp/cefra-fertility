@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import Navbar from './Navbar';
 import HomePage from './HomePage';
 import BookingPage from './BookingPage';
+import Chatbot from './components/Chatbot';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/agendar" element={<BookingPage />} />
         </Routes>
+        <Chatbot />
       </div>
     </BrowserRouter>
   );
