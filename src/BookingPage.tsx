@@ -44,6 +44,10 @@ export default function BookingPage() {
       });
 
       if (response.ok) {
+        const resData = await response.json();
+        if (resData.metaError) {
+          console.error("WhatsApp Error:", resData.metaError);
+        }
         alert('Tu solicitud de reserva ha sido enviada con éxito. Nos pondremos en contacto muy pronto.');
         form.reset();
         setPhone(undefined);

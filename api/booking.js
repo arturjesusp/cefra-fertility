@@ -82,6 +82,7 @@ export default async function handler(req, res) {
       success: true, 
       message: 'Reserva procesada',
       supabaseError, // Solo para depuración, nos indicará si falló el guardado en base de datos
+      metaStatus: metaToken ? (metaError ? 'error_en_meta' : 'enviado') : 'no_configurado',
       metaError // Solo para depuración, indicará si falló el mensaje de whatsapp
     });
 
