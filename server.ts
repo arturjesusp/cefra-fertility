@@ -8,9 +8,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Create Supabase Client safely
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+let supabase: ReturnType<typeof createClient> | null = null;
+try {
+  const supabaseUrl = process.env.SUPABASE_URL?.trim() || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
+
+  if (supabaseUrl && supabaseUrl.startsWith('http') && supabaseKey) {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  } else {
+    console.warn('Supabase URL missing or invalid. Skipping Supabase initialization.');
+  }
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error);
+}
 
 async function startServer() {
   const app = express();
