@@ -40,9 +40,15 @@ async function startServer() {
       // 1. Save to Supabase
       if (supabase) {
         const { error: dbError } = await supabase
-          .from('bookings')
+          .from('citas')
           .insert([
-            { sede, especialidad, doctor, modalidad, fecha, hora, nombre, telefono, email, esPrimeraVez }
+            { 
+              name: nombre, 
+              tel: telefono, 
+              fecha: fecha, 
+              hora: hora, 
+              mensaje: `Reserva: ${sede}, Especialidad: ${especialidad}, Doctor: ${doctor || 'No especificado'}, Modalidad: ${modalidad}, Email: ${email}, 1ra vez: ${esPrimeraVez}`
+            }
           ]);
         
         if (dbError) {

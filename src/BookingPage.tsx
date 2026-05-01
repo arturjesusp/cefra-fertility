@@ -48,8 +48,9 @@ export default function BookingPage() {
         form.reset();
         setPhone(undefined);
       } else {
-        console.error('Error submitting booking');
-        alert("Hubo un error al procesar tu reserva. Por favor intenta de nuevo.");
+        const errData = await response.json().catch(() => ({}));
+        console.error('Error submitting booking:', errData);
+        alert(`Hubo un error al procesar tu reserva: ${errData.details || errData.error || 'Intenta de nuevo.'}`);
       }
     } catch (error) {
       console.error('Failed to submit:', error);
