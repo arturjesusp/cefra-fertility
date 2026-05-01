@@ -11,11 +11,52 @@ const MAP_URLS = {
 export default function BookingPage() {
   const [sede, setSede] = useState('san-borja');
   const [phone, setPhone] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate successful form submission
-    alert('Tu solicitud de reserva ha sido enviada con éxito. Nos pondremos en contacto muy pronto.');
+    setIsSubmitting(true);
+    
+    // Recolectar datos del formulario
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const bookingData = {
+      sede,
+      especialidad: formData.get('especialidad'),
+      doctor: formData.get('doctor'),
+      modalidad: formData.get('modalidad'),
+      fecha: formData.get('fecha'),
+      hora: formData.get('hora'),
+      nombre: formData.get('nombre'),
+      telefono: phone,
+      email: formData.get('email'),
+      esPrimeraVez: formData.get('primera')
+    };
+
+    try {
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      if (response.ok) {
+        alert('Tu solicitud de reserva ha sido enviada con éxito. Nos pondremos en contacto muy pronto.');
+        form.reset();
+        setPhone(undefined);
+      } else {
+        console.error('Error submitting booking');
+        alert("Hubo un error al procesar tu reserva. Por favor intenta de nuevo.");
+      }
+    } catch (error) {
+      console.error('Failed to submit:', error);
+      alert("Error de conexión. Por favor intenta de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,6 +161,7 @@ export default function BookingPage() {
                 <div>
                   <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Especialidad</label>
                   <select 
+                    name="especialidad"
                     className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
                     required
                   >
@@ -136,6 +178,7 @@ export default function BookingPage() {
               <div>
                  <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Doctor (Opcional)</label>
                   <select 
+                    name="doctor"
                     className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
                   >
                     <option value="">Seleccione doctor</option>
@@ -175,6 +218,7 @@ export default function BookingPage() {
                   <div className="relative">
                     <input 
                       type="date" 
+                      name="fecha"
                       className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl pl-4 pr-10 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-12 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                       // Firefox fix for icon
                       style={{ colorScheme: 'light dark' }}
@@ -188,6 +232,7 @@ export default function BookingPage() {
                   <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Hora preferida</label>
                   <div className="relative">
                     <select 
+                      name="hora"
                       className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow appearance-none"
                       required
                     >
@@ -207,6 +252,7 @@ export default function BookingPage() {
                   <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Nombre Completo</label>
                   <input 
                     type="text" 
+                    name="nombre"
                     placeholder="Escribe tu nombre"
                     className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
                     required
@@ -229,6 +275,7 @@ export default function BookingPage() {
                   <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Correo Electrónico</label>
                   <input 
                     type="email" 
+                    name="email"
                     placeholder="tu@correo.com"
                     className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
                     required
@@ -275,9 +322,10 @@ export default function BookingPage() {
               {/* Submit */}
               <button 
                 type="submit"
-                className="w-full bg-clinic-cta hover:brightness-105 text-white font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(34,173,184,0.3)] transition-all transform hover:-translate-y-1 mt-6"
+                disabled={isSubmitting}
+                className="w-full bg-clinic-cta hover:brightness-105 text-white font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(34,173,184,0.3)] transition-all transform hover:-translate-y-1 mt-6 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
               >
-                Confirmar Reserva
+                {isSubmitting ? 'Procesando...' : 'Confirmar Reserva'}
               </button>
 
             </form>
