@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const MAP_URLS = {
   'san-borja': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.205244583344!2d-77.0097658!3d-12.0984928!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c7d8af9ab733%3A0xeebd1217e4bbdf02!2sAv.%20Guardia%20Civil%20571%2C%20San%20Borja%2015036!5e0!3m2!1sen!2spe!4v1700000000000!5m2!1sen!2spe',
@@ -8,6 +10,7 @@ const MAP_URLS = {
 
 export default function BookingPage() {
   const [sede, setSede] = useState('san-borja');
+  const [phone, setPhone] = useState<string | undefined>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,13 +212,15 @@ export default function BookingPage() {
                     required
                   />
                 </div>
-                 {/* Telefono */}
+                {/* Telefono */}
                  <div>
                   <label className="block text-sm font-semibold text-clinic-heading dark:text-white mb-2">Teléfono</label>
-                  <input 
-                    type="tel" 
+                  <PhoneInput 
                     placeholder="+51 900 000 000"
-                    className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus:ring-2 focus:ring-clinic-cta focus:outline-none transition-shadow"
+                    value={phone}
+                    onChange={setPhone}
+                    defaultCountry="PE"
+                    className="w-full bg-clinic-bg dark:bg-[#002f35] border border-clinic-muted-1/30 dark:border-white/10 rounded-xl px-4 py-3 text-clinic-dark dark:text-white focus-within:ring-2 focus-within:ring-clinic-cta focus-within:outline-none transition-shadow [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:border-none [&_.PhoneInputInput]:outline-none [&_.PhoneInputInput]:text-clinic-dark dark:[&_.PhoneInputInput]:text-white [&_.PhoneInputCountryIcon--border]:border-none [&_.PhoneInputCountryIcon]:shadow-sm"
                     required
                   />
                 </div>
