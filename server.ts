@@ -74,9 +74,21 @@ async function startServer() {
           body: JSON.stringify({
             messaging_product: 'whatsapp',
             to: telefono.replace('+', ''), // Meta requires phone number without '+'
-            type: 'text',
-            text: {
-              body: `Hola ${nombre},\n\nHemos recibido tu solicitud de reserva en CEFRA para la especialidad de ${especialidad} en formato ${modalidad}.\n\nNos pondremos en contacto contigo a la brevedad para reconfirmar la fecha y hora de tu cita.\n\n¡Gracias por confiar en nosotros!`
+            type: 'template',
+            template: {
+              name: 'confirmacion_reserva_cefra',
+              language: { code: 'es_PE' }, // Spanish (PER) code according to WhatsApp API
+              components: [
+                {
+                  type: 'body',
+                  parameters: [
+                    {
+                      type: 'text',
+                      text: nombre || 'Paciente'
+                    }
+                  ]
+                }
+              ]
             }
           })
         });
