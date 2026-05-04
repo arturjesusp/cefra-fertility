@@ -4,6 +4,7 @@ import path from 'path';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
@@ -30,6 +31,31 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
+  app.post('/api/chat', async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY?.trim();
+      if (!apiKey) {
+        return res.status(500).json({ error: 'La clave de API de Gemini no está configurada.' });
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
+      const { contents, systemInstruction } = req.body;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents,
+        config: {
+          systemInstruction,
+        }
+      });
+
+      res.status(200).json({ text: response.text });
+    } catch (error) {
+      console.error('Error generating content:', error);
+      res.status(500).json({ error: 'Error del servidor al contactar con la API de IA.' });
+    }
+  });
+
   app.post('/api/booking', async (req, res) => {
     try {
       const { 

@@ -1,33 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
-
-// Initialize Gemini API safely
-let _ai: GoogleGenAI | null = null;
-const getAIClient = () => {
-  if (!_ai) {
-    let apiKey = '';
-    try {
-      if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
-        apiKey = process.env.GEMINI_API_KEY;
-      }
-    } catch (e) {}
-    if (!apiKey) {
-      try {
-        // @ts-ignore
-        apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-      } catch (e) {}
-    }
-    
-    // We only initialize if we have an apiKey to prevent crashes
-    if (apiKey) {
-      _ai = new GoogleGenAI({ apiKey });
-    }
-  }
-  return _ai;
-};
 
 interface Message {
   role: 'user' | 'model';
@@ -63,23 +37,12 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const aiClient = getAIClient();
-      if (!aiClient) {
-         setMessages(prev => [...prev, { role: 'model', text: 'Lo siento, el servicio de chatbot no está configurado (falta la clave de API).' }]);
-         setIsLoading(false);
-         return;
-      }
-
       const contents = newMessages.map(msg => ({
         role: msg.role,
         parts: [{ text: msg.text }]
       }));
 
-      const response = await aiClient.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents,
-        config: {
-          systemInstruction: `Eres un Asistente Virtual experto en fertilidad y reproducción asistida para el centro CEFRA. Tu tono debe ser profesional, empático, informativo y extremadamente cuidadoso con la sensibilidad del tema.
+      const systemInstruction = `Eres un Asistente Virtual experto en fertilidad y reproducción asistida para el centro CEFRA. Tu tono debe ser profesional, empático, informativo y extremadamente cuidadoso con la sensibilidad del tema.
 
 Identidad y Misión
 Tu nombre es Asistente Virtual CEFRA.
@@ -100,15 +63,28 @@ IMPORTANTE: Cuando ofrezcas o menciones agendar una cita, DEBES proporcionar sie
 Conocimiento Base (Ejemplos de Respuesta)
 Sobre FIV: Explica que es la unión del óvulo y el espermatozoide en un laboratorio especializado de alta complejidad.
 Sobre Preservación: Explica que la vitrificación de óvulos permite postergar la maternidad manteniendo la calidad joven de las células.
-Responde de manera breve y cálida.`
-        }
+Responde de manera breve y cálida.`;
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents,
+          systemInstruction
+        })
       });
 
-      if (response.text) {
-        setMessages(prev => [...prev, { role: 'model', text: response.text as string }]);
+      const data = await response.json();
+
+      if (response.ok && data.text) {
+        setMessages(prev => [...prev, { role: 'model', text: data.text }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'model', text: data.error || 'Lo siento, ha ocurrido un error de conexión.' }]);
       }
     } catch (error) {
-      console.error('Error calling Gemini:', error);
+      console.error('Error calling Gemini API via /api/chat:', error);
       setMessages(prev => [...prev, { role: 'model', text: 'Lo siento, ha ocurrido un error de conexión.' }]);
     } finally {
       setIsLoading(false);
