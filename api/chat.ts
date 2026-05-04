@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     // Nota: Cambié a gemini-1.5-flash porque es la versión estable y gratuita actual
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3-flash-preview',
       contents,
       config: {
         systemInstruction,
