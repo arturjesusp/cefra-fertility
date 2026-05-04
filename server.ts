@@ -32,10 +32,12 @@ async function startServer() {
 
   // API Routes
   app.post('/api/chat', async (req, res) => {
+    let apiKey = '';
     try {
-      const apiKey = process.env.GEMINI_API_KEY?.trim();
-      if (!apiKey) {
-        return res.status(500).json({ error: 'La clave de API de Gemini no está configurada.' });
+      apiKey = process.env.GEMINI_API_KEY?.trim() || '';
+      if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
+        const errorMsg = 'La clave de API de Gemini no está bien configurada. Por favor, elimine el registro "GEMINI_API_KEY" del panel de "Secrets" y presione Enter para que el sistema utilice la clave gratuita por defecto.';
+        return res.status(500).json({ error: errorMsg });
       }
 
       const ai = new GoogleGenAI({ apiKey });
