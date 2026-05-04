@@ -9,7 +9,7 @@ import { GoogleGenAI } from '@google/genai';
 dotenv.config();
 
 // Create Supabase Client safely
-let supabase: ReturnType<typeof createClient> | null = null;
+let supabase: any = null;
 try {
   const supabaseUrl = process.env.SUPABASE_URL?.trim() || '';
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
