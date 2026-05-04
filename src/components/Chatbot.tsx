@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Loader2, Trash2 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +16,12 @@ export default function Chatbot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleClear = () => {
+    setMessages([
+      { role: 'model', text: '¡Hola! Soy tu asistente virtual de CEFRA. ¿En qué te puedo ayudar hoy?' }
+    ]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -126,12 +132,23 @@ Responde de manera breve y cálida.`;
               </p>
             </div>
           </div>
-          <button 
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={handleClear}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors text-white"
+              aria-label="Limpiar conversación"
+              title="Limpiar conversación"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors text-white"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Messages Layout */}
