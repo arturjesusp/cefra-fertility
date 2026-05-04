@@ -35,8 +35,10 @@ async function startServer() {
     let apiKey = '';
     try {
       apiKey = process.env.GEMINI_API_KEY?.trim() || '';
-      if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
-        const errorMsg = 'La clave de API de Gemini no está bien configurada. Por favor, elimine el registro "GEMINI_API_KEY" del panel de "Secrets" y presione Enter para que el sistema utilice la clave gratuita por defecto.';
+      
+      // Handle cases where the secret might have a placeholder value instead of a real key
+      if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === 'AI Studio Free Tier') {
+        const errorMsg = 'Configuración de IA incompleta: Por favor, ve al panel de "Secrets" en AI Studio, ELIMINA el registro de "GEMINI_API_KEY" y presiona Enter. Esto permitirá que el sistema utilice automáticamente la clave gratuita (Free Tier) del proyecto.';
         return res.status(500).json({ error: errorMsg });
       }
 
